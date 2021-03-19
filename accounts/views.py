@@ -1,6 +1,7 @@
 from accounts.models import Customers, Order, Product
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, request
+from django.forms import inlineformset_factory
 from .forms import OrderForm
 
 # Create your views here.
@@ -47,8 +48,11 @@ def customer(request, pk):
     return render(request, "accounts/customer.html", context)
 
 
-def createOrder(request):
-    form = OrderForm()
+def createOrder(request, pk):
+    OrderFormSet = inlineformset_factory(Customers, Order, fields=('product', 'status'))
+    customer = Customers.objects.get(id=pk)
+    formset = OrderFormSet(instance=customer)
+    # form = OrderForm(initial={'customer': customer})
     if request.method == "POST":
         print('Printing POST : ', request.POST)
         form = OrderForm(request.POST)
@@ -56,15 +60,15 @@ def createOrder(request):
             form.save()
             return redirect('/')
 
-    context = {'form': form}
+    context = {'formset': formset}
     return render(request, "accounts/order_form.html", context)
 
 
 def updaterOrder(request, pk):
     order = Order.objects.get(id=pk)
-    
+
     if request.method == "POST":
-        form = OrderForm(request.POST,instance=order)
+        form = OrderForm(request.POST, instance=order)
         if form.is_valid():
             form.save()
             return redirect('/')
@@ -73,12 +77,12 @@ def updaterOrder(request, pk):
     context = {'form': form}
     return render(request, "accounts/order_form.html", context)
 
-def deleteOrder(request,pk):
+
+def deleteOrder(request, pk):
     order = Order.objects.get(id=pk)
     if request.method == "POST":
         order.delete()
         return redirect('/')
-        
-        
-    context = {'item':order}
-    return render(request,'accounts/delete.html',context)
+
+    context = {'item': order}
+    return render(request, 'accounts/delete.html', context)
