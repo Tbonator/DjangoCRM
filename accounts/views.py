@@ -49,15 +49,16 @@ def customer(request, pk):
 
 
 def createOrder(request, pk):
-    OrderFormSet = inlineformset_factory(Customers, Order, fields=('product', 'status'))
+    OrderFormSet = inlineformset_factory(
+        Customers, Order, fields=('product', 'status'))
     customer = Customers.objects.get(id=pk)
     formset = OrderFormSet(instance=customer)
     # form = OrderForm(initial={'customer': customer})
     if request.method == "POST":
-        print('Printing POST : ', request.POST)
-        form = OrderForm(request.POST)
-        if form.is_valid():
-            form.save()
+        formset = OrderFormSet(request.POST, instance=customer)
+        #form = OrderForm(request.POST)
+        if formset.is_valid():
+            formset.save()
             return redirect('/')
 
     context = {'formset': formset}
