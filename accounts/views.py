@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login,logout
 from accounts.models import Customers, Order, Product
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, request
@@ -44,6 +44,9 @@ def loginPage(request):
     context = {}
     return render(request, 'accounts/login.html', context)
 
+def logoutUser(request):
+    logout(request)
+    return redirect('login')
 
 def home(request):
     orders = Order.objects.all()
