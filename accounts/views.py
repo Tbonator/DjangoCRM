@@ -1,4 +1,4 @@
-from django.contrib.auth import authenticate, login,logout
+from django.contrib.auth import authenticate, login, logout
 from accounts.models import Customers, Order, Product
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, request
@@ -8,6 +8,8 @@ from .filters import OrderFilter
 from django.contrib.auth.forms import SetPasswordForm, UserCreationForm
 
 from django.contrib import messages
+
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
@@ -44,10 +46,15 @@ def loginPage(request):
     context = {}
     return render(request, 'accounts/login.html', context)
 
+
 def logoutUser(request):
     logout(request)
     return redirect('login')
 
+
+
+
+@login_required(login_url='login')
 def home(request):
     orders = Order.objects.all()
     customers = Customers.objects.all()
@@ -67,12 +74,18 @@ def home(request):
     return render(request, "accounts/dashboard.html", context)
 
 
+
+
+@login_required(login_url='login')
 def products(request):
     products = Product.objects.all()
     return render(request, "accounts/products.html", {'products': products})
 #  whatever is the key is in the dictionary what is called in template
 
 
+
+
+@login_required(login_url='login')
 def customer(request, pk):
     # fetching individual customer using pk
     customer = Customers.objects.get(id=pk)
@@ -92,6 +105,8 @@ def customer(request, pk):
     return render(request, "accounts/customer.html", context)
 
 
+
+@login_required(login_url='login')
 def createOrder(request, pk):
     OrderFormSet = inlineformset_factory(
         Customers, Order, fields=('product', 'status'), extra=10)
@@ -109,6 +124,9 @@ def createOrder(request, pk):
     return render(request, "accounts/order_form.html", context)
 
 
+
+
+@login_required(login_url='login')
 def updaterOrder(request, pk):
     order = Order.objects.get(id=pk)
 
@@ -123,6 +141,9 @@ def updaterOrder(request, pk):
     return render(request, "accounts/order_form.html", context)
 
 
+
+
+@login_required(login_url='login')
 def deleteOrder(request, pk):
     order = Order.objects.get(id=pk)
     if request.method == "POST":
