@@ -32,26 +32,27 @@ def registerPage(request):
 
 
 def loginPage(request):
-    if request.method == "POST":
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+    if request.user.is_authenticated:
+        return redirect('home')
+    else:
+        if request.method == "POST":
+            username = request.POST.get('username')
+            password = request.POST.get('password')
 
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('home')
-        else:
-            messages.info(request, 'Username or Password is incorrect')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+            else:
+                messages.info(request, 'Username or Password is incorrect')
 
-    context = {}
-    return render(request, 'accounts/login.html', context)
+        context = {}
+        return render(request, 'accounts/login.html', context)
 
 
 def logoutUser(request):
     logout(request)
     return redirect('login')
-
-
 
 
 @login_required(login_url='login')
@@ -74,15 +75,11 @@ def home(request):
     return render(request, "accounts/dashboard.html", context)
 
 
-
-
 @login_required(login_url='login')
 def products(request):
     products = Product.objects.all()
     return render(request, "accounts/products.html", {'products': products})
 #  whatever is the key is in the dictionary what is called in template
-
-
 
 
 @login_required(login_url='login')
@@ -105,7 +102,6 @@ def customer(request, pk):
     return render(request, "accounts/customer.html", context)
 
 
-
 @login_required(login_url='login')
 def createOrder(request, pk):
     OrderFormSet = inlineformset_factory(
@@ -124,8 +120,6 @@ def createOrder(request, pk):
     return render(request, "accounts/order_form.html", context)
 
 
-
-
 @login_required(login_url='login')
 def updaterOrder(request, pk):
     order = Order.objects.get(id=pk)
@@ -139,8 +133,6 @@ def updaterOrder(request, pk):
     form = OrderForm(instance=order)
     context = {'form': form}
     return render(request, "accounts/order_form.html", context)
-
-
 
 
 @login_required(login_url='login')
